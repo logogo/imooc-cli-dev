@@ -15,5 +15,8 @@
   ],
   "scripts": {
     "test": "echo \" run testing from utils \" "
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
