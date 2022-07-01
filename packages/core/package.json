@@ -1,6 +1,6 @@
 {
   "name": "@imooc-cli-dev-gyl/core",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "imooc-cli-dev-gyl core",
   "author": "gyl <“172325760@qq.com”>",
   "homepage": "",
@@ -20,7 +20,7 @@
     "test": "echo \" run testing from core \" "
   },
   "dependencies": {
-    "@imooc-cli-dev-gyl/utils": "^0.0.2"
+    "@imooc-cli-dev-gyl/utils": "^0.0.3"
   },
   "publishConfig": {
     "access": "public"
