@@ -1,5 +1,5 @@
 15 error Error: Command failed with exit code 1: git remote update
-15 error fatal: unable to access 'https://github.com/logogo/imooc-cli-dev.git/': OpenSSL SSL_read: Connection was reset, errno 10054
+15 error fatal: unable to access 'https://github.com/logogo/imooc-cli-dev.git/': Failed to connect to github.com port 443 after 21142 ms: Timed out
 15 error error: could not fetch origin
 15 error Fetching origin
 15 error     at makeError (F:\github\imooc-cli-dev-gyl\imooc-cli-dev\node_modules\execa\lib\error.js:60:11)
