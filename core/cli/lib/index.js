@@ -2,6 +2,7 @@
 
 module.exports = core;
 
+const path = require('path')
 const semver = require('semver')
 const colors = require('colors/safe');
 const userHome = require('user-home');
@@ -9,7 +10,7 @@ const pathExists = require('path-exists').sync;
 const pkg = require('../package.json')
 const log = require('@imooc-cli-dev/log')
 const constant = require('./const')
-let args;
+let args,config;
 
 
 function core() {
@@ -20,10 +21,41 @@ function core() {
         checkRoot()
         checkUserHome()
         checkInputArgs()
-        log.verbose('debug','test debugger log')
+        checkEnv()
+        checkGlobalUpdate()
+        //log.verbose('debug','test debugger log')
     } catch (e) {
         log.error(e.message)
     }
+}
+
+function checkGlobalUpdate(){
+    const currentVersion = pkg.version
+    const npmName = pkg.name
+}
+
+function checkEnv(){
+    const dotenv = require('dotenv');
+    const dotenvPath = path.resolve(userHome,'env')
+    if(pathExists(dotenvPath)){
+        config = dotenv.config({
+            path: dotenvPath
+        })
+    }
+    createDefaultConfig()
+    console.log(process.env.CLI_HOME_PATH)
+}
+
+function createDefaultConfig(){
+    const cliConfig = {
+        home: userHome
+    };
+    if(process.env.CLI_HOME){
+        cliConfig['cliHome'] = path.join(userHome,process.env.CLI_home)
+    }else{
+        cliConfig['cliHome'] = path.join(userHome, constant.DEFAULT_CLI_HOME)
+    }
+    process.env.CLI_HOME_PATH = cliConfig.cliHome
 }
 
 function checkInputArgs(){
