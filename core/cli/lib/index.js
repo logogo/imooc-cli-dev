@@ -13,7 +13,7 @@ const constant = require('./const')
 let args,config;
 
 
-function core() {
+async function core() {
     // TODO
     try {
         checkPkgVersion()
@@ -22,17 +22,25 @@ function core() {
         checkUserHome()
         checkInputArgs()
         checkEnv()
-        checkGlobalUpdate()
+        await checkGlobalUpdate()
         //log.verbose('debug','test debugger log')
     } catch (e) {
         log.error(e.message)
     }
 }
 
-function checkGlobalUpdate(){
-    const currentVersion = pkg.version
-    const npmName = pkg.name
-}
+async function checkGlobalUpdate() {
+    const currentVersion = pkg.version;
+    const npmName = pkg.name;
+    const { getNpmSemverVersion } = require('@imooc-cli-dev/get-npm-info');
+    const lastVersion = await getNpmSemverVersion(currentVersion, npmName);
+    console.log(lastVersion)
+    if (lastVersion && semver.gt(lastVersion, currentVersion)) {
+      log.warn(colors.yellow(`请手动更新 ${npmName}，当前版本：${currentVersion}，最新版本：${lastVersion}
+                  更新命令： npm install -g ${npmName}`));
+    }
+  }
+  
 
 function checkEnv(){
     const dotenv = require('dotenv');
