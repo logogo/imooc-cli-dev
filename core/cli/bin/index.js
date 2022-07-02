@@ -1,6 +1,9 @@
 #!/usr/bin/env node 
 
-const utils = require("@imooc-cli-dev-gyl/utils")
-utils()
-console.log('good gyl')
-console.log(1111111111111111111)
+const importLocal = require('import-local');
+
+if(importLocal(__filename)){
+    require('npmlog').info('cli','正在使用 imooc-cli-gyl 本地版本')
+} else {
+    require('../lib')(process.argv.slice(2))
+}
