@@ -21,14 +21,15 @@
   },
   "dependencies": {
     "@imooc-cli-dev-gyl/utils": "../../utils/utils",
-    "@imooc-cli-dev/log": "../../utils/log",
-    "@imooc-cli-dev/get-npm-info": "../../utils/get-npm-info"
+    "@imooc-cli-dev/get-npm-info": "../../utils/get-npm-info",
+    "@imooc-cli-dev/log": "../../utils/log"
   },
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
     "colors": "^1.4.0",
+    "commander": "^6.2.1",
     "dotenv": "^16.0.1",
     "import-local": "^3.1.0",
     "minimist": "^1.2.6",
