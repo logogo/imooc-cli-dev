@@ -20,9 +20,11 @@
     "test": "echo \" run testing from core \" "
   },
   "dependencies": {
+    "@imooc-cli-dev/exec": "../exec",
     "@imooc-cli-dev-gyl/utils": "../../utils/utils",
     "@imooc-cli-dev/get-npm-info": "../../utils/get-npm-info",
-    "@imooc-cli-dev/log": "../../utils/log"
+    "@imooc-cli-dev/log": "../../utils/log",
+    "@imooc-cli-dev/init": "../../commands/init"
   },
   "publishConfig": {
     "access": "public"

@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
-module.exports = utils;
 
-function utils() {
-    // TODO
-    console.log(2222222222)
+function isObject(o) {
+    return Object.prototype.toString.call(o) === '[object Object]';
 }
+
+module.exports = {
+    isObject,
+}
+  
