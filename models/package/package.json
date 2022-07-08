@@ -27,10 +27,12 @@
     "url": "https://github.com/logogo/imooc-cli-dev/issues"
   },
   "dependencies": {
+    "@imooc-cli-dev/format-path": "../../utils/format-path",
     "@imooc-cli-dev/utils": "../../utils/utils",
-    "@imooc-cli-dev/format-path": "../../utils/format-path"
+    "@imooc-cli-dev/get-npm-info": "../../utils/get-npm-info"
   },
   "devDependencies": {
+    "npminstall": "^6.4.0",
     "pkg-dir": "^5.0.0"
   }
 }

@@ -4,6 +4,8 @@ const { isObject } = require('@imooc-cli-dev/utils');
 const pkgDir = require('pkg-dir').sync;
 const path = require('path')
 const formatPath = require('@imooc-cli-dev/format-path');
+const npminstall = require('npminstall')
+const { getDefaultRegistry, getNpmLatestVersion } = require('@imooc-cli-dev/get-npm-info');
 
 class Package {
     constructor(options){
@@ -27,7 +29,16 @@ class Package {
     exists(){}
 
     // 安装package
-    install(){}
+    install(){
+      return npminstall({
+          root: this.targetPath,
+          storeDir: this.storeDir,
+          registry: getDefaultRegistry(),
+          pakgs: {
+            name: this.packageName, version: this.packageVersion
+          }
+        })
+    }
 
     // 更新package
     update(){}
