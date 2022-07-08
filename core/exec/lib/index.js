@@ -21,7 +21,7 @@ function exec() {
         packageName,
         packageVersion
     })
-    console.log(pkg)
+    console.log(pkg.getRootFilePath())
 }
 
 module.exports = exec;

@@ -1,6 +1,9 @@
 'use strict';
 
 const { isObject } = require('@imooc-cli-dev/utils');
+const pkgDir = require('pkg-dir').sync;
+const path = require('path')
+const formatPath = require('@imooc-cli-dev/format-path');
 
 class Package {
     constructor(options){
@@ -28,6 +31,18 @@ class Package {
 
     // 更新package
     update(){}
+
+    // 获取入口文件的路径
+  getRootFilePath() {
+    const dir = pkgDir(this.targetPath)
+    if(dir){
+      const pkgFile = require(path.resolve(dir,'package.json'))
+      if(pkgFile && (pkgFile.main)){
+        return formatPath(path.resolve(dir, pkgFile.main))
+      }
+    }
+    return null
+  }
 }
 
 module.exports = Package

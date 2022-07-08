@@ -1,7 +1,7 @@
 {
-  "name": "@imooc-cli-dev/package",
+  "name": "@imooc-cli-dev/format-path",
   "version": "0.0.3",
-  "description": "imooc-cli-dev npm modles",
+  "description": "formate path",
   "author": "gyl <“172325760@qq.com”>",
   "homepage": "https://github.com/logogo/imooc-cli-dev#readme",
   "license": "ISC",
@@ -25,12 +25,5 @@
   },
   "bugs": {
     "url": "https://github.com/logogo/imooc-cli-dev/issues"
-  },
-  "dependencies": {
-    "@imooc-cli-dev/utils": "../../utils/utils",
-    "@imooc-cli-dev/format-path": "../../utils/format-path"
-  },
-  "devDependencies": {
-    "pkg-dir": "^5.0.0"
   }
 }
