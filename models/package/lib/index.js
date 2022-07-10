@@ -2,6 +2,7 @@
 
 const { isObject } = require('@imooc-cli-dev/utils');
 const pkgDir = require('pkg-dir').sync;
+const fse = require('fs-extra');
 const path = require('path')
 const pathExists = require('path-exists').sync;
 const formatPath = require('@imooc-cli-dev/format-path');
@@ -29,6 +30,9 @@ class Package {
     }
 
     async prepare() {
+      if (this.storeDir && !pathExists(this.storeDir)) {
+        fse.mkdirpSync(this.storeDir);
+      }
       if (this.packageVersion === 'latest') {
         this.packageVersion = await getNpmLatestVersion(this.packageName);
       }
@@ -37,6 +41,10 @@ class Package {
     get cacheFilePath() {
       return path.resolve(this.storeDir, `_${this.cacheFilePathPrefix}@${this.packageVersion}@${this.packageName}`);
     }  
+
+    getSpecificCacheFilePath(packageVersion) {
+      return path.resolve(this.storeDir, `_${this.cacheFilePathPrefix}@${packageVersion}@${this.packageName}`);
+    }
 
     // 判断当前Package是否存在
     async exists() {
@@ -50,11 +58,6 @@ class Package {
 
     // 安装package
     install(){
-      console.log(this.targetPath)
-      console.log(this.storeDir)
-      console.log(this.packageName)
-      console.log(this.packageVersion)
-      console.log(getDefaultRegistry())
       return npminstall({
           root: this.targetPath,
           storeDir: this.storeDir,
@@ -66,18 +69,45 @@ class Package {
     }
 
     // 更新package
-    update(){}
-
-    // 获取入口文件的路径
-  getRootFilePath() {
-    const dir = pkgDir(this.targetPath)
-    if(dir){
-      const pkgFile = require(path.resolve(dir,'package.json'))
-      if(pkgFile && (pkgFile.main)){
-        return formatPath(path.resolve(dir, pkgFile.main))
+    async update(){
+      await this.prepare();
+      const latestPackageVersion = await getNpmLatestVersion(this.packageName);
+      const latestFilePath = this.getSpecificCacheFilePath(latestPackageVersion)
+      if(!pathExists(latestFilePath)){
+        await npminstall({
+          root: this.targetPath,
+          storeDir: this.storeDir,
+          registry: getDefaultRegistry(),
+          pkgs: [{
+            name: this.packageName,
+            version: latestPackageVersion,
+          }],
+        });
+        this.packageVersion = latestPackageVersion
       }
     }
-    return null
+
+  // 获取入口文件的路径
+  getRootFilePath() {
+    function _getRootFile(targetPath) {
+      // 1. 获取package.json所在目录
+      const dir = pkgDir(targetPath);
+      if (dir) {
+        // 2. 读取package.json
+        const pkgFile = require(path.resolve(dir, 'package.json'));
+        // 3. 寻找main/lib
+        if (pkgFile && pkgFile.main) {
+          // 4. 路径的兼容(macOS/windows)
+          return formatPath(path.resolve(dir, pkgFile.main));
+        }
+      }
+      return null;
+    }
+    if (this.storeDir) {
+      return _getRootFile(this.cacheFilePath);
+    } else {
+      return _getRootFile(this.targetPath);
+    }
   }
 }
 

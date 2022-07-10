@@ -31,8 +31,10 @@ async function exec() {
             packageVersion
         })
         if(await pkg.exists()){
-            console.log('更新逻辑')
+            // 更新package
+            await pkg.update();
         }else{
+            // 安装package
             await pkg.install()
         }
         const rootFile = pkg.getRootFilePath()
