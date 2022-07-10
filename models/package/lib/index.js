@@ -62,9 +62,9 @@ class Package {
           root: this.targetPath,
           storeDir: this.storeDir,
           registry: getDefaultRegistry(),
-          pakgs: {
+          pkgs: [{
             name: this.packageName, version: this.packageVersion
-          }
+          }]
         })
     }
 
