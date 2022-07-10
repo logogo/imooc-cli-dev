@@ -1,7 +1,7 @@
 {
-  "name": "@imooc-cli-dev/init",
+  "name": "@imooc-cli-dev/command",
   "version": "0.0.3",
-  "description": "> TODO: description",
+  "description": "imooc-cli-dev command",
   "author": "gyl <“172325760@qq.com”>",
   "homepage": "https://github.com/logogo/imooc-cli-dev#readme",
   "license": "ISC",
@@ -27,6 +27,6 @@
     "url": "https://github.com/logogo/imooc-cli-dev/issues"
   },
   "dependencies": {
-    "@imooc-cli-dev/command": "../../models/command"
+    "@imooc-cli-dev/log": "../../utils/log"
   }
 }

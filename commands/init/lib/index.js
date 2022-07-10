@@ -1,7 +1,14 @@
 'use strict';
 
-module.exports = init;
+const Command = require('@imooc-cli-dev/command');
 
-function init(projectName,cmdObj) {
-    console.log('init', projectName, cmdObj.force)
+class InitCommand extends Command{
+
 }
+
+function init() {
+    return new InitCommand();
+  }
+
+module.exports = init;
+module.exports.InitCommand = InitCommand;

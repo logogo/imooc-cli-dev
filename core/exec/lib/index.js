@@ -37,10 +37,16 @@ async function exec() {
             // 安装package
             await pkg.install()
         }
-        const rootFile = pkg.getRootFilePath()
-        if(rootFile){
-            require(rootFile).apply(null, arguments)
-        }
+    }else {
+        pkg = new Package({
+          targetPath,
+          packageName,
+          packageVersion,
+        });
+    }
+    const rootFile = pkg.getRootFilePath()
+    if(rootFile){
+        require(rootFile).apply(null, arguments)
     }
 }
 
