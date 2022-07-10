@@ -3,6 +3,7 @@
 const { isObject } = require('@imooc-cli-dev/utils');
 const pkgDir = require('pkg-dir').sync;
 const path = require('path')
+const pathExists = require('path-exists').sync;
 const formatPath = require('@imooc-cli-dev/format-path');
 const npminstall = require('npminstall')
 const { getDefaultRegistry, getNpmLatestVersion } = require('@imooc-cli-dev/get-npm-info');
@@ -23,13 +24,37 @@ class Package {
         this.packageName = options.packageName;
         // package的version
         this.packageVersion = options.packageVersion;
+        // package的缓存目录前缀
+        this.cacheFilePathPrefix = this.packageName.replace('/', '_');
     }
 
-    // 判断当前package是否存在
-    exists(){}
+    async prepare() {
+      if (this.packageVersion === 'latest') {
+        this.packageVersion = await getNpmLatestVersion(this.packageName);
+      }
+    }
+
+    get cacheFilePath() {
+      return path.resolve(this.storeDir, `_${this.cacheFilePathPrefix}@${this.packageVersion}@${this.packageName}`);
+    }  
+
+    // 判断当前Package是否存在
+    async exists() {
+      if (this.storeDir) {
+        await this.prepare();
+        return pathExists(this.cacheFilePath);
+      } else {
+        return pathExists(this.targetPath);
+      }
+    }
 
     // 安装package
     install(){
+      console.log(this.targetPath)
+      console.log(this.storeDir)
+      console.log(this.packageName)
+      console.log(this.packageVersion)
+      console.log(getDefaultRegistry())
       return npminstall({
           root: this.targetPath,
           storeDir: this.storeDir,

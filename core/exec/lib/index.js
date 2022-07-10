@@ -26,11 +26,12 @@ async function exec() {
         storeDir = path.resolve(targetPath, 'node_modules');
         pkg = new Package({
             targetPath,
+            storeDir,
             packageName,
             packageVersion
         })
-        if(pkg.exists()){
-
+        if(await pkg.exists()){
+            console.log('更新逻辑')
         }else{
             await pkg.install()
         }
