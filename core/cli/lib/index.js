@@ -22,7 +22,6 @@ async function core() {
     // TODO
     try {
         checkPkgVersion()
-        checkNodeVersion()
         checkRoot()
         checkUserHome()
         //checkInputArgs()
@@ -141,16 +140,6 @@ function checkUserHome(){
 function checkRoot(){
     const rootCheck = require('root-check')
     rootCheck()
-}
-
-function checkNodeVersion(){
-    // 第一步 获取当前版本号
-    const currentVersion = process.version
-    // 第二步 对比最低版本号
-    const lowestVersion = constant.LOWEST_NODE_VERSION
-    if(!semver.gte(currentVersion,lowestVersion)){
-        throw new Error(colors.red(`imooc-cli 需要安装 v${lowestVersion}以上版本的Node.js`))
-    }
 }
 
 function checkPkgVersion(){ // 检查版本好

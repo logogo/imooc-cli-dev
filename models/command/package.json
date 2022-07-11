@@ -28,5 +28,9 @@
   },
   "dependencies": {
     "@imooc-cli-dev/log": "../../utils/log"
+  },
+  "devDependencies": {
+    "colors": "^1.4.0",
+    "semver": "^7.3.4"
   }
 }
