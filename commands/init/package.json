@@ -27,6 +27,7 @@
     "url": "https://github.com/logogo/imooc-cli-dev/issues"
   },
   "dependencies": {
-    "@imooc-cli-dev/command": "../../models/command"
+    "@imooc-cli-dev/command": "../../models/command",
+    "@imooc-cli-dev/log": "../../utils/log"
   }
 }
