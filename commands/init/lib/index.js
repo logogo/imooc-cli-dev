@@ -6,6 +6,11 @@ const fs = require('fs');
 const fse = require('fs-extra');
 const inquirer = require('inquirer');
 const semver = require('semver');
+const path = require('path');
+const userHome = require('user-home');
+const Package = require('@imooc-cli-dev/package');
+const getProjectTemplate = require('./getProjectTemplate');
+const { spinnerStart, sleep } = require('@imooc-cli-dev/utils');
 
 const TYPE_PROJECT = 'project';
 const TYPE_COMPONENT = 'component';
@@ -20,12 +25,71 @@ class InitCommand extends Command{
 
   async exec(){
     try {
-      this.prepare()
+      const projectInfo = await this.prepare();
+      if (projectInfo) {
+        // 2. 下载模板
+        log.verbose('projectInfo', projectInfo);
+        this.projectInfo = projectInfo;
+        await this.downloadTemplate();
+        // 3. 安装模板
+        //await this.installTemplate();
+      }
     }catch(e){
       log.error(e.message)
     }
   }
+
+  async downloadTemplate() {
+    const { projectTemplate } = this.projectInfo;
+    const templateInfo = this.template.find(item => item.npmName === projectTemplate);
+    const targetPath = path.resolve(userHome, '.imooc-cli-dev', 'template');
+    const storeDir = path.resolve(userHome, '.imooc-cli-dev', 'template', 'node_modules');
+    const { npmName, version } = templateInfo;
+    const templateNpm = new Package({
+      targetPath,
+      storeDir,
+      packageName: npmName,
+      packageVersion: version,
+    });
+    if (!await templateNpm.exists()) {
+      const spinner = spinnerStart('正在下载模板...');
+      await sleep();
+      try {
+        await templateNpm.install();
+      } catch (e) {
+        throw e;
+      } finally {
+        spinner.stop(true);
+        if (await templateNpm.exists()) {
+          log.success('下载模板成功');
+          this.templateNpm = templateNpm;
+        }
+      }
+    } else {
+      const spinner = spinnerStart('正在更新模板...');
+      await sleep();
+      try {
+        await templateNpm.update();
+      } catch (e) {
+        throw e;
+      } finally {
+        spinner.stop(true);
+        if (await templateNpm.exists()) {
+          log.success('更新模板成功');
+          this.templateNpm = templateNpm;
+        }
+      }
+    }
+  }
+
   async prepare(){
+     // 0. 判断项目模板是否存在
+    const template = await getProjectTemplate();
+    if (!template || template.length === 0) {
+      throw new Error('项目模板不存在');
+    }
+    this.template = template;
+     // 1. 判断当前目录是否为空
     const localPath = process.cwd()
     if(!this.isCwdEmpty(localPath)){
       let ifContinue  = false;
@@ -133,6 +197,11 @@ class InitCommand extends Command{
             return v;
           }
         },
+      },{
+        type: 'list',
+        name: 'projectTemplate',
+        message: `请选择${title}模板`,
+        choices: this.createTemplateChoice(),
       });
     if (type === TYPE_PROJECT) {
       // 2. 获取项目的基本信息
@@ -167,8 +236,8 @@ class InitCommand extends Command{
         type,
         ...component,
       };
-      console.log(projectInfo)
     }
+    return projectInfo
   }
 
   isCwdEmpty(localPath) {
@@ -178,6 +247,13 @@ class InitCommand extends Command{
       !file.startsWith('.') && ['node_modules'].indexOf(file) < 0
     ));
     return !fileList || fileList.length <= 0;
+  }
+
+  createTemplateChoice() {
+    return this.template.map(item => ({
+      value: item.npmName,
+      name: item.name,
+    }));
   }
 }
 
