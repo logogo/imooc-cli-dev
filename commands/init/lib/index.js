@@ -15,6 +15,9 @@ const { spinnerStart, sleep } = require('@imooc-cli-dev/utils');
 const TYPE_PROJECT = 'project';
 const TYPE_COMPONENT = 'component';
 
+const TEMPLATE_TYPE_NORMAL = 'normal';
+const TEMPLATE_TYPE_CUSTOM = 'custom';
+
 class InitCommand extends Command{
   init(){
     this.projectName = this._argv[0] || '';
@@ -32,11 +35,53 @@ class InitCommand extends Command{
         this.projectInfo = projectInfo;
         await this.downloadTemplate();
         // 3. 安装模板
-        //await this.installTemplate();
+        await this.installTemplate();
       }
     }catch(e){
       log.error(e.message)
     }
+  }
+
+  async installTemplate() {
+    log.verbose('templateInfo', this.templateInfo);
+    if (this.templateInfo) {
+      if (!this.templateInfo.type) {
+        this.templateInfo.type = TEMPLATE_TYPE_NORMAL;
+      }
+      if (this.templateInfo.type === TEMPLATE_TYPE_NORMAL) {
+        // 标准安装
+        await this.installNormalTemplate();
+      } else if (this.templateInfo.type === TEMPLATE_TYPE_CUSTOM) {
+        // 自定义安装
+        await this.installCustomTemplate();
+      } else {
+        throw new Error('无法识别项目模板类型！');
+      }
+    } else {
+      throw new Error('项目模板信息不存在！');
+    }
+  }
+
+  async installNormalTemplate() {
+    log.verbose('templateNpm', this.templateNpm);
+    let spinner = spinnerStart('正在安装模板...');
+    await sleep();
+    try {
+      const templatePath = path.resolve(this.templateNpm.cacheFilePath, 'template');
+      const targetPath = process.cwd();
+      fse.ensureDirSync(templatePath);
+      fse.ensureDirSync(targetPath);
+      fse.copySync(templatePath, targetPath);
+    } catch (e) {
+      throw e;
+    } finally {
+      spinner.stop(true);
+      log.success('模板安装成功');
+    }
+  }
+
+  async installCustomTemplate() {
+
   }
 
   async downloadTemplate() {
@@ -45,6 +90,7 @@ class InitCommand extends Command{
     const targetPath = path.resolve(userHome, '.imooc-cli-dev', 'template');
     const storeDir = path.resolve(userHome, '.imooc-cli-dev', 'template', 'node_modules');
     const { npmName, version } = templateInfo;
+    this.templateInfo = templateInfo;
     const templateNpm = new Package({
       targetPath,
       storeDir,
