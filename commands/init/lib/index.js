@@ -4,19 +4,23 @@ const Command = require('@imooc-cli-dev/command');
 const log = require('@imooc-cli-dev/log');
 const fs = require('fs');
 const fse = require('fs-extra');
+const glob = require('glob');
+const ejs = require('ejs');
 const inquirer = require('inquirer');
 const semver = require('semver');
 const path = require('path');
 const userHome = require('user-home');
 const Package = require('@imooc-cli-dev/package');
 const getProjectTemplate = require('./getProjectTemplate');
-const { spinnerStart, sleep } = require('@imooc-cli-dev/utils');
+const { spinnerStart, sleep, execAsync } = require('@imooc-cli-dev/utils');
 
 const TYPE_PROJECT = 'project';
 const TYPE_COMPONENT = 'component';
 
 const TEMPLATE_TYPE_NORMAL = 'normal';
 const TEMPLATE_TYPE_CUSTOM = 'custom';
+
+const WHITE_COMMAND = ['npm', 'cnpm'];
 
 class InitCommand extends Command{
   init(){
@@ -38,7 +42,10 @@ class InitCommand extends Command{
         await this.installTemplate();
       }
     }catch(e){
-      log.error(e.message)
+      log.error(e.message);
+      if (process.env.LOG_LEVEL === 'verbose') {
+        console.log(e);
+      }
     }
   }
 
@@ -62,6 +69,39 @@ class InitCommand extends Command{
     }
   }
 
+  async ejsRender(options) {
+    const dir = process.cwd();
+    const projectInfo = this.projectInfo;
+    return new Promise((resolve, reject) => {
+      glob('**', {
+        cwd: dir,
+        ignore: options.ignore || '',
+        nodir: true,
+      }, function(err, files) {
+        if (err) {
+          reject(err);
+        }
+        Promise.all(files.map(file => {
+          const filePath = path.join(dir, file);
+          return new Promise((resolve1, reject1) => {
+            ejs.renderFile(filePath, projectInfo, {}, (err, result) => {
+              if (err) {
+                reject1(err);
+              } else {
+                fse.writeFileSync(filePath, result);
+                resolve1(result);
+              }
+            });
+          });
+        })).then(() => {
+          resolve();
+        }).catch(err => {
+          reject(err);
+        });
+      });
+    });
+  }
+
   async installNormalTemplate() {
     log.verbose('templateNpm', this.templateNpm);
     let spinner = spinnerStart('正在安装模板...');
@@ -78,10 +118,45 @@ class InitCommand extends Command{
       spinner.stop(true);
       log.success('模板安装成功');
     }
+    const { installCommand, startCommand } = this.templateInfo;
+    const templateIgnore = this.templateInfo.ignore || [];
+    const ignore = ['**/node_modules/**', ...templateIgnore];
+    await this.ejsRender({ ignore });
+    // 依赖安装
+    await this.execCommand(installCommand, '依赖安装失败！');
+    // 启动命令执行
+    await this.execCommand(startCommand, '启动执行命令失败！');
+  }
+
+  async execCommand(command, errMsg) {
+    let ret;
+    if (command) {
+      const cmdArray = command.split(' ');
+      const cmd = this.checkCommand(cmdArray[0]);
+      if (!cmd) {
+        throw new Error('命令不存在！命令：' + command);
+      }
+      const args = cmdArray.slice(1);
+      ret = await execAsync(cmd, args, {
+        stdio: 'inherit',
+        cwd: process.cwd(),
+      });
+    }
+    if (ret !== 0) {
+      throw new Error(errMsg);
+    }
+    return ret;
   }
 
   async installCustomTemplate() {
 
+  }
+
+  checkCommand(cmd) {
+    if (WHITE_COMMAND.includes(cmd)) {
+      return cmd;
+    }
+    return null;
   }
 
   async downloadTemplate() {
@@ -282,6 +357,15 @@ class InitCommand extends Command{
         type,
         ...component,
       };
+    }
+
+    // 生成classname
+    if (projectInfo.projectName) {
+      projectInfo.name = projectInfo.projectName;
+      projectInfo.className = require('kebab-case')(projectInfo.projectName).replace(/^-/, '');
+    }
+    if (projectInfo.projectVersion) {
+      projectInfo.version = projectInfo.projectVersion;
     }
     return projectInfo
   }

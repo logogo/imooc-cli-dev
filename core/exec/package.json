@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@imooc-cli-dev/package": "../../models/package",
-    "@imooc-cli-dev/log": "../../utils/log"
+    "@imooc-cli-dev/log": "../../utils/log",
+    "@imooc-cli-dev/utils": "../../utils//utils"
   }
 }
