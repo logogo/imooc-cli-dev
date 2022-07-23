@@ -269,6 +269,8 @@ class InitCommand extends Command{
       }],
     });
     log.verbose('type', type);
+    this.template = this.template.filter(template =>
+      template.tag.includes(type));
     const title = type === TYPE_PROJECT ? '项目' : '组件';
     const projectNamePrompt = {
       type: 'input',
@@ -318,7 +320,8 @@ class InitCommand extends Command{
             return v;
           }
         },
-      },{
+      },
+      {
         type: 'list',
         name: 'projectTemplate',
         message: `请选择${title}模板`,
@@ -358,7 +361,6 @@ class InitCommand extends Command{
         ...component,
       };
     }
-
     // 生成classname
     if (projectInfo.projectName) {
       projectInfo.name = projectInfo.projectName;
@@ -367,7 +369,10 @@ class InitCommand extends Command{
     if (projectInfo.projectVersion) {
       projectInfo.version = projectInfo.projectVersion;
     }
-    return projectInfo
+    if (projectInfo.componentDescription) {
+      projectInfo.description = projectInfo.componentDescription;
+    }
+    return projectInfo;
   }
 
   isCwdEmpty(localPath) {
