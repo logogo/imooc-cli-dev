@@ -16,7 +16,7 @@ const constant = require('./const')
 
 const program = new commander.Command();
 let args,config;
-
+process.env.CLI_TARGET_PATH = path.resolve(__dirname,'../../../commands/init/lib')  // 默认执行地址
 
 async function core() {
     // TODO
